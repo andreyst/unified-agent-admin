@@ -1,0 +1,26 @@
+routes:
+  - input:
+      plugin: linux_metrics
+    channel:
+      pipe:
+        - filter:
+            id: a1
+            plugin: assign
+            config:
+              session:
+                - a: b
+        - pipe_ref:
+            name: test_pipe
+      output:
+        plugin: dev_null
+
+pipes:
+  - name: test_pipe
+    pipe: 
+      - filter:
+          id: a2
+          plugin: assign
+          config:                      
+            session:
+              - a2: b2
+

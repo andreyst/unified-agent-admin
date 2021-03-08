@@ -1,0 +1,135 @@
+routes:
+  - input:
+      plugin: linux_metrics
+      id: lm1
+    channel:
+      fanout:
+        - channel:
+            pipe:
+              - filter:
+                   plugin: filter_metrics
+                   config:
+                     match: "{test=test}"
+              - pipe_ref:
+                  name: pipe1
+            channel_ref:
+              name: test1
+        - channel:
+            output:
+              plugin: debug
+              id: debug1
+              config:
+                file_name: "/tmp/debug.log"
+                delimiter: "\n"
+        - channel:
+            output:
+              plugin: yc_metrics
+              id: ycm1
+              config:
+                iam:
+                  cloud_meta: {}
+                folder_id: test
+
+  - input:
+      plugin: linux_metrics
+      id: lm2
+    channel:
+      fanout:
+        - channel:
+            channel_ref:
+              name: test2
+        - channel:
+            output:
+              plugin: yc_metrics
+              id: ycm2
+              config:
+                iam: 
+                  cloud_meta: {}
+                folder_id: test
+
+  - input:
+      plugin: linux_metrics
+      id: lm3
+    channel:
+      pipe:
+        - filter: 
+            plugin: assign
+            config:
+              session:
+                - a: b
+      fanout:
+        - channel:
+            channel_ref:
+              name: test1
+        - channel:
+            pipe:
+               - filter:
+                   plugin: assign
+                   config:
+                     session:
+                       - a: b
+            case:
+              - when:
+                  session:
+                    n1: m1
+                channel:
+                  output:
+                    id: case1
+                    plugin: dev_null
+              - when:
+                  session:
+                    n2: m2
+                channel:
+                  output:
+                    id: case2
+                    plugin: dev_null
+              - channel:
+                  output:
+                    id: case3
+                    plugin: dev_null
+
+channels:
+  - name: test1
+    channel:
+      pipe:
+        - filter:
+            plugin: filter_metrics
+            id: fm1
+            config:
+              match: "{test=test}"
+      channel_ref:
+        name: test2
+  - name: test2
+    channel: 
+      pipe: 
+        - filter:
+            plugin: filter_metrics
+            id: fm2
+            config:
+              match: "{test=test}"
+      channel_ref: 
+        name: test3
+  - name: test3
+    channel: 
+      pipe: 
+        - filter:
+           plugin: filter_metrics
+           id: fm3
+           config:
+             match: "{test=test}"
+      output:
+        plugin: yc_metrics
+        id: ycm3
+        config:
+          iam:
+            cloud_meta: {}
+          folder_id: test
+
+pipes:
+  - name: pipe1
+    pipe: 
+      - filter:
+           plugin: filter_metrics
+           id: pipe1fm1
+           config:
+             match: "{test2=test2}"

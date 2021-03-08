@@ -1,0 +1,25 @@
+routes:
+  - input:
+      plugin: linux_metrics
+    channel:
+      fanout:
+        - channel:
+            channel_ref:
+              name: cloud_monitoring
+        - channel:
+            #filter:
+            output:
+              plugin: yc_metrics
+              config:
+                iam: 
+                  cloud_meta: {}
+                folder_id: test
+        - channel:
+            fanout:
+              - channel:
+                  channel_ref:
+                    name: cloud_monitoring
+              - channel:
+                  channel_ref:
+                    name: cloud_monitoring
+

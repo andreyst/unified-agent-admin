@@ -1,0 +1,18 @@
+routes:
+  - input:
+      plugin: linux_metrics
+      config:
+        namespace: sys
+        proc_directory: /ua_proc
+        sys_directory: /sys
+        resources:
+          cpu: basic
+          memory: basic
+          network: basic
+          storage: basic
+          io: basic
+          kernel: basic
+    channel:
+      channel_ref:
+        name: cloud_monitoring
+
