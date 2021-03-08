@@ -51,8 +51,16 @@ function renderRoute(app, table) {
                                 <div style="width: 50%; height: 15px; border-right: 1px solid #cccccc;">&nbsp;</div>
                         </div>`
             } else if (cell.type == "text") {
-                content = `<div class="block"><i class="bi bi-exclamation-circle text-warning"></i>
-                 ${cell.data}</div>`
+                let footer = `<div class="card-footer">&nbsp;</div>`
+                if (cell.data.subtitle == "output") {
+                    footer = `<div class="card-footer"><i class="bi bi-exclamation-circle text-warning"></i></i> No bytes acknowledged in last 5 minutes</div>`
+                }
+
+                content = `<div class="card" style="margin-right: 10px;">
+                <div class="card-body">
+                    <h6 class="card-title">${cell.data.title} <span class="text-muted">${cell.data.subtitle}</span></h6>
+                </div>
+                 </div>`
             }
 
             let cellNode = $(`<td>${content}</td>`)
@@ -77,7 +85,7 @@ function traverseConfig(app) {
 function traverseRoute(app, table, route, x, y) {
     let maxXBelow = x
 
-    collectCell(table, x, y, "text", `input ${route.input.plugin} ${route.input.id || ""}`)
+    collectCell(table, x, y, "text", { title: `${route.input.plugin} ${route.input.id || ""}`, subtitle: "output" })
     y += 1
 
     x = traverseChannel(app, table, route.channel, x, y, "connector")
@@ -99,7 +107,7 @@ function traverseChannel(app, table, channel, x, y, connector_type) {
         collectCell(table, x, y, connector_type || "connector")
         y += 1
 
-        collectCell(table, x, y, "text", `output ${channel.output.plugin} ${channel.output.id || ""}`)
+        collectCell(table, x, y, "text", { title: `${channel.output.plugin} ${channel.output.id || ""}`, subtitle: "output" })
         y += 1
         x += 1
     } else if (channel.hasOwnProperty("fanout")) {
@@ -143,13 +151,13 @@ function traversePipe(app, table, pipe, x, y, connector_type) {
             collectCell(table, x, y, connector_type || "connector")
             y += 1
 
-            collectCell(table, x, y, "text", `storage ${storage.plugin} ${storage.id || ""}`)
+            collectCell(table, x, y, "text", { title: `${storage.plugin} ${storage.id || ""}`, subtitle: "storage" })
             y += 1
         } else {
             collectCell(table, x, y, connector_type || "connector")
             y += 1
 
-            collectCell(table, x, y, "text", `filter ${filter.filter.plugin} ${filter.filter.id || ""}`)
+            collectCell(table, x, y, "text", { title: `${filter.filter.plugin} ${filter.filter.id || ""}`, subtitle: "filter" })
             y += 1
         }
 
